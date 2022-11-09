@@ -3,49 +3,46 @@
   import Peer from 'peerjs';
   import { onMount } from 'svelte';
   import OnlineWhiteboard from './helper/OnlineWhiteboard';
-
-  let canvas: HTMLCanvasElement | undefined = undefined;
-  let peer: Peer | undefined = undefined;
-  let board: OnlineWhiteboard | undefined = undefined;
+  import ConnectionManager from './net/ConnectionManager';
 
   let inpEleText: string;
-  let hideHeader: boolean = false;
+  let spanEle: HTMLSpanElement;
+  let inpUsername: string;
 
   onMount(() => {
-    peer = new Peer();
-    board = new OnlineWhiteboard(canvas, peer);
+    const peer = new Peer();
 
-    setInterval(() => {
-      if (board.users.size > 0) {
-        hideHeader = true;
-      }
-    }, 2000);
+    peer.on("open", id => {
+
+      const connectionManager = new ConnectionManager(peer, id);
+
+      spanEle.textContent = location.href + "?join-id=" + id;
+
+    });
+
   });
 
-  function onGo () {
-    if (board.users.size == 0) {
-      console.log("Trying to connect to", inpEleText);
-      board.connectToUser(inpEleText);
-      inpEleText = "";
-    }
+  function onSendChat() {
+    ConnectionManager.instance.sendToAll('chat-message', inpEleText);
+
+    inpEleText = "";
   }
 
-  
-
+  function onSendUsername() {
+    ConnectionManager.instance.sendToAll('set-name', inpUsername);
+  }
 </script>
 
 <main>
 
-  <div id="header" class="{hideHeader ? "hidden" : ""}">
-    <p> 
-      id: <span id="id-span"></span>
-      <br>
-      join: <input type="text" bind:value={inpEleText}> <button on:click={onGo}>go</button>
-    </p>
-    
-  </div>
+  <p>
+    name: <input type="text" bind:value={inpUsername}> <button on:click={onSendUsername}>send</button>
+    <br>
+    chat: <input type="text" bind:value={inpEleText}/> <button on:click={onSendChat}>send</button>
+    <br>
+    join link: <span bind:this={spanEle}></span>
 
-  <canvas id="drawing-canvas" bind:this={canvas} on:mousemove={board?.onMouseMove}></canvas>
+  </p>
 
 </main>
 

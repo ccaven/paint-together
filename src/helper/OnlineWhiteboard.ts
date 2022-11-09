@@ -25,7 +25,7 @@ export default class OnlineWhiteboard extends Whiteboard {
         });
 
         this.peer.on("connection", conn => {
-
+            
             conn.on("open", () => {
 
                 // Add connection
