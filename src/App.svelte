@@ -2,47 +2,39 @@
 
   import Peer from 'peerjs';
   import { onMount } from 'svelte';
-  import OnlineWhiteboard from './helper/OnlineWhiteboard';
   import ConnectionManager from './net/ConnectionManager';
+  import Camera from './whiteboard/Camera';
+  import Whiteboard from './whiteboard/Whiteboard';
 
-  let inpEleText: string;
-  let spanEle: HTMLSpanElement;
-  let inpUsername: string;
-
+  let drawingCanvasElement: HTMLCanvasElement;
+  let inviteLinkSpanElement: HTMLSpanElement;
+  
   onMount(() => {
+    
     const peer = new Peer();
-
     peer.on("open", id => {
+      
+      new ConnectionManager(peer, id);
 
-      const connectionManager = new ConnectionManager(peer, id);
-
-      spanEle.textContent = location.href + "?join-id=" + id;
+      inviteLinkSpanElement.textContent = window.location.href.split("?")[0] + "?join-id=" + id;
 
     });
 
+    new Whiteboard(drawingCanvasElement);
+    new Camera(drawingCanvasElement);
+  
   });
-
-  function onSendChat() {
-    ConnectionManager.instance.sendToAll('chat-message', inpEleText);
-
-    inpEleText = "";
-  }
-
-  function onSendUsername() {
-    ConnectionManager.instance.sendToAll('set-name', inpUsername);
-  }
 </script>
 
 <main>
+    
+  <canvas bind:this={drawingCanvasElement} width=256 height=256></canvas>
 
-  <p>
-    name: <input type="text" bind:value={inpUsername}> <button on:click={onSendUsername}>send</button>
-    <br>
-    chat: <input type="text" bind:value={inpEleText}/> <button on:click={onSendChat}>send</button>
-    <br>
-    join link: <span bind:this={spanEle}></span>
+  <div id="header">
 
-  </p>
+    <span id="invite-link" bind:this={inviteLinkSpanElement}></span>
+
+  </div>
 
 </main>
 
@@ -51,32 +43,21 @@
     overflow: hidden;
   }
 
-  #drawing-canvas {
-    background-color: white;
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 100vw;
-    height: 100vh;
+  canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+    width: 512px;
+    height: 512px;
+    background-color: aquamarine;
   }
 
-  #header {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    color: black;
-    z-index: 100;
-    transition: 1s ease;
-  }
-
-  #id-span {
+  #invite-link {
     font-family: 'Courier New', Courier, monospace;
-  }
-
-  .hidden {
-    display: none;
-    opacity: 0;
+    color: blue;
+    text-decoration: underline;
+    background-color: white;
+    padding: 5px;
   }
 </style>
 

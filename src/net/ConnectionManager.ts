@@ -1,9 +1,10 @@
 import Peer from "peerjs";
-import type { DataConnection, HandlerFunction, Message, MessageLabel, Snowflake} from "../types";
+import type { DataConnection, HandlerFunction, Message, MessageLabel, ShapePayload, Snowflake} from "../types";
+import Whiteboard from "../whiteboard/Whiteboard";
 
 export default class ConnectionManager {
 
-    static instance: ConnectionManager | undefined;
+    static instance: ConnectionManager;
 
     readonly connections = new Map<string, DataConnection>();
     readonly nicknames = new Map<string, string>();
@@ -46,7 +47,7 @@ export default class ConnectionManager {
             conn.on("close", () => destroyConnection(conn));
             conn.on("error", () => destroyConnection(conn));
 
-            conn.on("data", (msg: Message) => {
+            conn.on("data", (msg: Message<any>) => {
                 // Handle data
                 const {label, payload} = msg;
 
@@ -66,7 +67,7 @@ export default class ConnectionManager {
             this.sendTo(conn.connectionId, "member-list", this.memberList);
         });
 
-        this.handlers.set("member-list", (conn, payload) => {
+        this.handlers.set("member-list", (_, payload) => {
             // compare members
             const memberList = this.memberList;
             for (let memberId of payload) {
@@ -76,32 +77,6 @@ export default class ConnectionManager {
                 }
             }
         });
-
-        // this.handlers.set("request-id", (conn, payload) => {
-        //     const incomingPeerId = payload as string;
-
-        //     if (!this.peerIds.has(incomingPeerId)) {
-        //         this.peerIds.set(conn.connectionId, incomingPeerId);
-        //         this.sendTo(conn.connectionId, 'answer-id', this.id);
-        //     }
-        // });
-
-        // this.handlers.set("answer-id", (conn, payload) => {
-        //     const thatPeerId = payload as string;
-        //     this.peerIds.set(conn.connectionId, thatPeerId);
-
-        //     this.sendToAll('new-member', thatPeerId);
-        // });
-
-        // this.handlers.set("new-member", (_, payload) => {
-        //     // connect to new member's ID
-        //     const newMemberId = payload as string;
-
-        //     // add connection
-        //     if (!this.peerIds.has(newMemberId) && newMemberId != this.id) {
-        //         addConnection(this.peer.connect(newMemberId), true);
-        //     }
-        // });
 
         this.handlers.set("set-name", (conn, payload) => {
             const nickname = payload as string;
@@ -117,13 +92,14 @@ export default class ConnectionManager {
             console.log(nickname, "says", payload);
         });
 
-        this.handlers.set("draw-shape", (conn, payload) => {
+        this.handlers.set("draw-shape", (conn, payload: ShapePayload) => {
             // TODO: Relay this back to Whiteboard object
             // For now, console.log
             const connectionId = conn.connectionId;
             const nickname = this.nicknames.get(connectionId);
-
             console.log(nickname, "draws", payload);
+
+            Whiteboard.instance.handleIncoming(payload);
         });
 
         // Check window args

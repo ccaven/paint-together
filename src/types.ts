@@ -3,13 +3,20 @@ export type Snowflake = string;
 
 export type MessageLabel = 'draw-shape' | 'chat-message' | 'new-member' | 'set-name' | 'introduction' | 'member-list';
 
+export type ShapeName = "Shape" | "Line";
+
 export type HandlerFunction = (conn: DataConnection, payload: any) => void;
 
 export type MessageHandler = Map<MessageLabel, HandlerFunction>;
 
-export type Message = {
-    label: MessageLabel,
-    payload: any
+export type ShapePayload = {
+    type: ShapeName;
+    args: Array<any>;
+};
+
+export type Message<T> = {
+    label: MessageLabel;
+    payload: T;
 };
 
 export interface DataConnection {
