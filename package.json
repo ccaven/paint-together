@@ -21,6 +21,8 @@
   },
   "dependencies": {
     "@types/peerjs": "^1.1.0",
-    "peerjs": "^1.4.7"
+    "peerjs": "^1.4.7",
+    "vite-plugin-css-injected-by-js": "^2.1.1",
+    "vite-plugin-singlefile": "^0.13.0"
   }
 }
