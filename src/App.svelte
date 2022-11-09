@@ -22,19 +22,21 @@
 
     new Whiteboard(drawingCanvasElement);
     new Camera(drawingCanvasElement);
+
+    drawingCanvasElement.oncontextmenu = e => e.preventDefault();
   
   });
 </script>
 
 <main>
     
-  <canvas bind:this={drawingCanvasElement} width=256 height=256></canvas>
+  <canvas bind:this={drawingCanvasElement} width=2048 height=2048></canvas>
 
-  <div id="header">
+  <header>
 
     <span id="invite-link" bind:this={inviteLinkSpanElement}></span>
 
-  </div>
+  </header>
 
 </main>
 
@@ -44,12 +46,21 @@
   }
 
   canvas {
+    display: fixed;
     padding: 0;
     margin: auto;
     display: block;
     width: 512px;
     height: 512px;
-    background-color: aquamarine;
+    background-color: white;
+    border: 5px solid black;
+  }
+
+  header {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+
   }
 
   #invite-link {

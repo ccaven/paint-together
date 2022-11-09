@@ -1,4 +1,5 @@
 import type { Message, ShapePayload, ShapeName } from "../../types";
+import Camera from "../Camera";
 import Color from "../Color";
 import Whiteboard from "../Whiteboard";
 import Shape from "./Shape";
@@ -40,9 +41,11 @@ export default class Line extends Shape {
     
     public draw() {
         Whiteboard.instance.ctx.strokeStyle = this.color.toString();
+        Whiteboard.instance.ctx.lineWidth = Math.round(5 / Camera.instance.scale);
+        Whiteboard.instance.ctx.lineCap = "round";
         Whiteboard.instance.ctx.beginPath();
-        Whiteboard.instance.ctx.moveTo(this.x1, this.y1);
-        Whiteboard.instance.ctx.lineTo(this.x2, this.y2);
+        Whiteboard.instance.ctx.moveTo(Math.round(this.x1), Math.round(this.y1));
+        Whiteboard.instance.ctx.lineTo(Math.round(this.x2), Math.round(this.y2));
         Whiteboard.instance.ctx.stroke();
     }
 
