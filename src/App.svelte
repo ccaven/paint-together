@@ -1,5 +1,14 @@
 <script lang="ts">
 
+  /** TODO
+   * [DONE] Mouse smoothing / precision
+   * Color palette
+   * Eraser
+   * Brush sizes
+   * [DONE] Zooming speed exponential, not linear
+   * Zoom towards mouse
+  */
+
   import Peer from 'peerjs';
   import { onMount } from 'svelte';
   import ConnectionManager from './net/ConnectionManager';
@@ -53,7 +62,7 @@
     width: 512px;
     height: 512px;
     background-color: white;
-    border: 5px solid black;
+    border: none;
   }
 
   header {

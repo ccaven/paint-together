@@ -15,13 +15,49 @@ export default class Whiteboard {
     readonly ctx: CanvasRenderingContext2D;
     readonly camera: Camera;
 
+    boundingRect: DOMRect;
+
     constructor (canvas: HTMLCanvasElement) {
         Whiteboard.instance = this; // Singleton implementation
 
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
 
-        this.canvas.onmousemove = this.onMouseMove;
+        let previousX: number = 0;
+        let previousY: number = 0;
+
+        this.boundingRect = this.canvas.getBoundingClientRect();
+
+        this.canvas.onmousemove = (event: MouseEvent) => {
+            if (event.buttons & 1) {
+
+                // do stuff
+                // create line
+                let x1 = (event.x - this.boundingRect.left) / this.boundingRect.width * this.canvas.width;
+                let y1 = (event.y - this.boundingRect.top) / this.boundingRect.height * this.canvas.height;
+                let x2 = (previousX - this.boundingRect.left) / this.boundingRect.width * this.canvas.width;
+                let y2 = (previousY - this.boundingRect.top) / this.boundingRect.height * this.canvas.height;
+
+                const line = new Line(
+                    x1, y1, x2, y2, 
+                    Color.red
+                );
+
+                this.addShape(line);
+
+                // send to others
+                const msg = line.toPayload();
+                ConnectionManager.instance?.sendToAll(msg.label, msg.payload);
+
+            }
+
+            previousX = event.x;
+            previousY = event.y;
+        };
+    }
+
+    public recalculateBoundingRect() {
+        this.boundingRect = this.canvas.getBoundingClientRect();
     }
 
     public handleIncoming(payload: ShapePayload) {
@@ -36,46 +72,4 @@ export default class Whiteboard {
     public addShape(shape: Shape) {
         shape.draw();
     }
-
-    public readonly onMouseMove = (() => {
-        let previousPageX: number = 0;
-        let previousPageY: number = 0;
-
-        return (event: MouseEvent) => {
-
-            if (event.buttons & 1) {
-
-                // do stuff
-                // create line
-                const dx = event.pageX - previousPageX;
-                const dy = event.pageY - previousPageY;
-
-                const boundingRect = this.canvas.getBoundingClientRect();
-
-                let localPageX = event.pageX - boundingRect.left;
-                let localPageY = event.pageY - boundingRect.top;
-
-                let scale = this.canvas.width / boundingRect.width;
-
-                const line = new Line(
-                    localPageX * scale, 
-                    localPageY * scale, 
-                    (localPageX + dx) * scale, 
-                    (localPageY + dy) * scale, 
-                    Color.red
-                );
-
-                this.addShape(line);
-
-                // send to others
-                const msg = line.toPayload();
-                ConnectionManager.instance?.sendToAll(msg.label, msg.payload);
-
-            }
-
-            previousPageX = event.pageX;
-            previousPageY = event.pageY;
-
-        };
-    }) ();
 }
