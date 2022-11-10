@@ -16,10 +16,12 @@
       arr.push(new Color(r, g, b));
     }
 
+    arr.push(new Color(255, 255, 255));
+
     return arr;
   }) ();
 
-  const brushWidths = [1, 3, 5, 10, 15];
+  const brushWidths = [1, 3, 5, 10, 15, 25, 35, 50, 75];
 
   function setColor(color: Color) {
     Whiteboard.instance.setColor(color);
@@ -34,7 +36,7 @@
     let maxSize = 60;
 
     let minWidth = 1;
-    let maxWidth = 15;
+    let maxWidth = 50;
 
     return (width - minWidth) / (maxWidth - minWidth) * (maxSize - minSize) + minSize;
   }

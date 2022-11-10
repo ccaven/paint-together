@@ -21,13 +21,13 @@ export default class Camera {
 
         const setStyle = () => {
             this.canvas.style.transform = `
+                scale(
+                    ${this.scale}
+                )
                 translate(
                     ${Math.round(this.translateX)}px,
                     ${Math.round(this.translateY)}px
-                ) 
-                scale(
-                    ${this.scale}
-                )`.replaceAll(" ", "");
+                ) `.replaceAll(" ", "");
             
             Whiteboard.instance.recalculateBoundingRect();
         };
@@ -51,8 +51,8 @@ export default class Camera {
 
         window.onmousemove = event => {
             if (event.buttons == 2) {
-                this.translateX += event.movementX;
-                this.translateY += event.movementY;
+                this.translateX += event.movementX / this.scale;
+                this.translateY += event.movementY / this.scale;
                 setStyle();
             }
         };
