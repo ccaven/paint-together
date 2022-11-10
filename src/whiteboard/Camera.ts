@@ -25,8 +25,8 @@ export default class Camera {
                     ${this.scale}
                 )
                 translate(
-                    ${Math.round(this.translateX)}px,
-                    ${Math.round(this.translateY)}px
+                    ${this.translateX}px,
+                    ${this.translateY}px
                 ) `.replaceAll(" ", "");
             
             Whiteboard.instance.recalculateBoundingRect();
