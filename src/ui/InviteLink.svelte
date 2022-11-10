@@ -12,8 +12,6 @@
 
       spanElement.style.display = "inline-block";
       setTimeout(() => spanElement.style.display = "none", 5000);
-
-
     }
   }
 </script>

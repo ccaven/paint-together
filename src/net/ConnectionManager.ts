@@ -51,9 +51,8 @@ export default class ConnectionManager {
                 // Handle data
                 const {label, payload} = msg;
 
-                if (this.handlers.has(label)) {
+                if (this.handlers.has(label))
                     this.handlers.get(label)(conn, payload);
-                }
             });
         }
 

@@ -18,17 +18,12 @@
   import Whiteboard from './whiteboard/Whiteboard';
 
   let drawingCanvasElement: HTMLCanvasElement;
-  let inviteLinkSpanElement: HTMLSpanElement;
   
   onMount(() => {
     
     const peer = new Peer();
     peer.on("open", id => {
-      
       new ConnectionManager(peer, id);
-
-      inviteLinkSpanElement.textContent = window.location.href.split("?")[0] + "?join-id=" + id;
-
     });
 
     new Whiteboard(drawingCanvasElement);
@@ -89,14 +84,6 @@
     bottom: 0px;
     left: 0px;
     width: 100vw;
-  }
-
-  #invite-link {
-    font-family: 'Courier New', Courier, monospace;
-    color: blue;
-    text-decoration: underline;
-    background-color: white;
-    padding: 5px;
   }
 </style>
 
