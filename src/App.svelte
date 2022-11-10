@@ -12,6 +12,8 @@
   import Peer from 'peerjs';
   import { onMount } from 'svelte';
   import ConnectionManager from './net/ConnectionManager';
+  import InviteLink from './ui/InviteLink.svelte';
+  import Palette from './ui/Palette.svelte';
   import Camera from './whiteboard/Camera';
   import Whiteboard from './whiteboard/Whiteboard';
 
@@ -42,14 +44,24 @@
   <canvas bind:this={drawingCanvasElement} width=2048 height=2048></canvas>
 
   <header>
-
-    <span id="invite-link" bind:this={inviteLinkSpanElement}></span>
-
+    <div class="centered">
+      <InviteLink/>
+    </div>
   </header>
+  
+  <footer>
+    <div class="centered">
+      <Palette/>
+    </div>
+  </footer>
 
 </main>
 
 <style>
+  .centered {
+    width: 100%;
+  }
+
   :root {
     overflow: hidden;
   }
@@ -69,7 +81,14 @@
     position: fixed;
     top: 0px;
     left: 0px;
+    width: 100vw;
+  }
 
+  footer {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100vw;
   }
 
   #invite-link {

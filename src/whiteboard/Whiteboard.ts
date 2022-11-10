@@ -15,7 +15,8 @@ export default class Whiteboard {
     readonly ctx: CanvasRenderingContext2D;
     readonly camera: Camera;
 
-    boundingRect: DOMRect;
+    private boundingRect: DOMRect;
+    private currentColor: Color = Color.red;
 
     constructor (canvas: HTMLCanvasElement) {
         Whiteboard.instance = this; // Singleton implementation
@@ -54,6 +55,12 @@ export default class Whiteboard {
             previousX = event.x;
             previousY = event.y;
         };
+    }
+
+    public setColor(c: Color) {
+        this.currentColor.r = c.r;
+        this.currentColor.g = c.g;
+        this.currentColor.b = c.b;
     }
 
     public recalculateBoundingRect() {
