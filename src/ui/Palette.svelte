@@ -19,22 +19,47 @@
     return arr;
   }) ();
 
+  const brushWidths = [1, 3, 5, 10, 15];
+
   function setColor(color: Color) {
     Whiteboard.instance.setColor(color);
   }
+
+  function setBrushWidth(width: number) {
+    Whiteboard.instance.setBrushWidth(width);
+  }
+
+  function mapWidth(width: number) {
+    let minSize = 10;
+    let maxSize = 60;
+
+    let minWidth = 1;
+    let maxWidth = 15;
+
+    return (width - minWidth) / (maxWidth - minWidth) * (maxSize - minSize) + minSize;
+  }
+
+  function computeRadialGradient(width) {
+    return `background: radial-gradient(
+      white ${mapWidth(width)}%, 
+      black ${mapWidth(width)+5}%, 
+      rgba(0,0,0,0) ${mapWidth(width)+10}%
+    )`;
+  }
 </script>
-
-<!--
-
-    List of buttons
-
--->
 
 <section>
   {#each colors as color}
     <button
       style="background-color: {color}"
       on:click={() => setColor(color)}
+    />
+  {/each}
+  {#each brushWidths as width, i}
+    <button
+      class="background-button"
+      style={computeRadialGradient(width)}
+      on:click={() => setBrushWidth(width)}
     />
   {/each}
 </section>
@@ -52,5 +77,11 @@
 
   button:hover {
     border-radius: 10px;
+  }
+
+  .background-button {
+    /* background: radial-gradient(white, black); */
+    background-position: center;
+    background-repeat: no-repeat;
   }
 </style>

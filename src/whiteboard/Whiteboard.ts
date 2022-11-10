@@ -17,6 +17,7 @@ export default class Whiteboard {
 
     private boundingRect: DOMRect;
     private currentColor: Color = Color.red;
+    private currentBrushSize: number = 1;
 
     constructor (canvas: HTMLCanvasElement) {
         Whiteboard.instance = this; // Singleton implementation
@@ -41,7 +42,8 @@ export default class Whiteboard {
 
                 const line = new Line(
                     x1, y1, x2, y2, 
-                    Color.red
+                    this.currentColor,
+                    this.currentBrushSize
                 );
 
                 this.addShape(line);
@@ -61,6 +63,10 @@ export default class Whiteboard {
         this.currentColor.r = c.r;
         this.currentColor.g = c.g;
         this.currentColor.b = c.b;
+    }
+
+    public setBrushWidth(size: number) {
+        this.currentBrushSize = size;
     }
 
     public recalculateBoundingRect() {

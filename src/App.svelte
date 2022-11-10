@@ -2,9 +2,9 @@
 
   /** TODO
    * [DONE] Mouse smoothing / precision
-   * Color palette
+   * [DONE] Color palette
    * Eraser
-   * Brush sizes
+   * [DONE] Brush sizes
    * [DONE] Zooming speed exponential, not linear
    * Zoom towards mouse
   */
