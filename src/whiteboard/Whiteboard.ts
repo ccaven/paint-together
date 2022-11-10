@@ -85,4 +85,8 @@ export default class Whiteboard {
     public addShape(shape: Shape) {
         shape.draw();
     }
+
+    get clientBoundingRect() {
+        return this.boundingRect;
+    }
 }

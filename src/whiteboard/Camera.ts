@@ -34,9 +34,11 @@ export default class Camera {
 
         window.onwheel = (event: WheelEvent) => {
             // this.scale -= event.deltaY * 0.001;
-            this.scale *= Math.pow(2.0, -event.deltaY * 0.001);
-            this.scale = Math.max(this.scale, 0.05);
+            const scaleFactor = Math.pow(2.0, -event.deltaY * 0.001);
 
+            this.scale *= scaleFactor;
+            this.scale = Math.max(this.scale, 0.05);
+            
             // TODO: also translate
             // const boundingRect = this.canvas.getBoundingClientRect();
 
