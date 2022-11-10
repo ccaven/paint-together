@@ -21,40 +21,49 @@ export default class Camera {
 
         const setStyle = () => {
             this.canvas.style.transform = `
-                scale(
-                    ${this.scale}
-                )
                 translate(
                     ${this.translateX}px,
                     ${this.translateY}px
-                ) `.replaceAll(" ", "");
-            
+                )
+                scale(
+                    ${this.scale}
+                )`.replaceAll(" ", "");
             Whiteboard.instance.recalculateBoundingRect();
         };
-
+        
         window.onwheel = (event: WheelEvent) => {
-            // this.scale -= event.deltaY * 0.001;
-            const scaleFactor = Math.pow(2.0, -event.deltaY * 0.001);
+            const clientRect = Whiteboard.instance.clientBoundingRect;
+        
+            // Credit to Daniel (https://github.com/dkareh) for fixing zoom function
 
-            this.scale *= scaleFactor;
+            // "True" in the sense that we're ignoring the CSS transformations.
+            const trueCenterLeft = (clientRect.left + clientRect.width / 2) - this.translateX;
+            const trueCenterTop = (clientRect.top + clientRect.height / 2) - this.translateY;
+            const trueWidth = clientRect.width / this.scale;
+            const trueHeight = clientRect.height / this.scale;
+            const trueLeft = (clientRect.left - this.translateX - trueCenterLeft) / this.scale + trueCenterLeft;
+            const trueTop = (clientRect.top - this.translateY - trueCenterTop) / this.scale + trueCenterTop;
+        
+            const mouseRelativeToCanvasLeft = (event.clientX - clientRect.left) * this.canvas.width / clientRect.width;
+            const mouseRelativeToCanvasTop = (event.clientY - clientRect.top) * this.canvas.height / clientRect.height;
+        
+            this.scale *= Math.pow(2.0, -event.deltaY * 0.001);
             this.scale = Math.max(this.scale, 0.05);
-            
-            // TODO: also translate
-            // const boundingRect = this.canvas.getBoundingClientRect();
-
-            // let localX = event.x - boundingRect.left;
-            // let localY = event.y - boundingRect.right;
-
-            // this.translateX += (localX - this.translateX) * 0.1;
-            // this.translateY += (localY - this.translateY) * 0.1;
-
+        
+            // Note that `this.scale` now refers to the new scale, not the old scale!
+            const newMouseLeft = mouseRelativeToCanvasLeft * trueWidth * this.scale / this.canvas.width + (trueLeft - trueCenterLeft) * this.scale + trueCenterLeft;
+            const newMouseTop = mouseRelativeToCanvasTop * trueHeight * this.scale / this.canvas.height + (trueTop - trueCenterTop) * this.scale + trueCenterTop;
+        
+            this.translateX = event.clientX - newMouseLeft;
+            this.translateY = event.clientY - newMouseTop;
+        
             setStyle();
         };
-
+        
         window.onmousemove = event => {
             if (event.buttons == 2) {
-                this.translateX += event.movementX / this.scale;
-                this.translateY += event.movementY / this.scale;
+                this.translateX += event.movementX;
+                this.translateY += event.movementY;
                 setStyle();
             }
         };
