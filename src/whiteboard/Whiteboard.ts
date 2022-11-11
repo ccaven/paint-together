@@ -57,6 +57,25 @@ export default class Whiteboard {
             previousY = event.y;
         };
 
+        this.canvas.onmousedown = (event: MouseEvent) => {
+            if (event.buttons & 1) {
+                // do stuff
+                // create line
+                let x1 = (event.x - this.boundingRect.left) / this.boundingRect.width * this.canvas.width;
+                let y1 = (event.y - this.boundingRect.top) / this.boundingRect.height * this.canvas.height;
+                const line = new Line(
+                    x1, y1, x1, y1, 
+                    this.currentColor,
+                    this.currentBrushSize
+                );
+
+                this.addShape(line);
+
+                // send to others
+                ConnectionManager.instance?.addShapeToQueue(line);
+            }
+        };
+
         setInterval(() => this.recalculateBoundingRect(), 1000);
     }
 

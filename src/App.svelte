@@ -8,6 +8,7 @@
    * [DONE] Zooming speed exponential, not linear
    * [DONE] Zoom towards mouse
    * [DONE] Limit network activity
+   * [DONE] Draw point if no mouse movement
    * [    ] Color picked via <input type="color"
    * [    ] $8 membership
   */
