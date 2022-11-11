@@ -1,7 +1,7 @@
 // PeerJS peerId's and connectionId's
 export type Snowflake = string;
 
-export type MessageLabel = 'draw-shape' | 'chat-message' | 'new-member' | 'set-name' | 'introduction' | 'member-list';
+export type MessageLabel = 'draw-shape-many' | 'draw-shape' | 'chat-message' | 'new-member' | 'set-name' | 'introduction' | 'member-list';
 
 export type ShapeName = "Shape" | "Line";
 

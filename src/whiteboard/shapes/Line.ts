@@ -54,7 +54,7 @@ export default class Line extends Shape {
         Whiteboard.instance.ctx.stroke();
     }
 
-    public override toPayload(): Message<ShapePayload> {
+    public override toMessage(): Message<ShapePayload> {
         return {
             label: "draw-shape",
             payload: {

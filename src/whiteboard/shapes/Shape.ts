@@ -12,7 +12,7 @@ export default class Shape {
 
     public draw() {}
 
-    public toPayload(): Message<ShapePayload> {
+    public toMessage(): Message<ShapePayload> {
         return {
             label: "draw-shape",
             payload: {

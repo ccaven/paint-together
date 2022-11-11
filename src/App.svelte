@@ -7,6 +7,8 @@
    * [DONE] Brush sizes
    * [DONE] Zooming speed exponential, not linear
    * Zoom towards mouse
+   * Limit network activity
+   * $8 membership
   */
 
   import Peer from 'peerjs';

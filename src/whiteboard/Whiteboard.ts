@@ -49,14 +49,15 @@ export default class Whiteboard {
                 this.addShape(line);
 
                 // send to others
-                const msg = line.toPayload();
-                ConnectionManager.instance?.sendToAll(msg.label, msg.payload);
+                ConnectionManager.instance?.addShapeToQueue(line);
 
             }
 
             previousX = event.x;
             previousY = event.y;
         };
+
+        setInterval(() => this.recalculateBoundingRect(), 1000);
     }
 
     public setColor(c: Color) {

@@ -1,5 +1,6 @@
 import Peer from "peerjs";
 import type { DataConnection, HandlerFunction, Message, MessageLabel, ShapePayload, Snowflake} from "../types";
+import Shape from "../whiteboard/shapes/Shape";
 import Whiteboard from "../whiteboard/Whiteboard";
 
 export default class ConnectionManager {
@@ -13,6 +14,8 @@ export default class ConnectionManager {
 
     readonly peer: Peer;
     readonly id: string;
+
+    private shapeQueue: ShapePayload[] = [];
 
     constructor (peer: Peer, id: string) {
         ConnectionManager.instance = this; // Singleton implementation
@@ -101,6 +104,25 @@ export default class ConnectionManager {
             Whiteboard.instance.handleIncoming(payload);
         });
 
+        this.handlers.set("draw-shape-many", (_, payloads: ShapePayload[]) => {
+            for (let i = 0; i < payloads.length; i ++) {
+                Whiteboard.instance.handleIncoming(payloads[i]);
+            }
+        });
+
+        setInterval(() => {
+            const l = this.shapeQueue.length;
+            const n = 20;
+
+            if (l > 0) {
+                if (l > n) {
+                    this.sendToAll("draw-shape-many", this.shapeQueue.splice(l - n));
+                } else {
+                    this.sendToAll("draw-shape-many", this.shapeQueue.splice(0));
+                }
+            }
+        }, 1000 / 60);
+
         // Check window args
         const args = new URLSearchParams(location.search);
 
@@ -108,6 +130,10 @@ export default class ConnectionManager {
             const joinId = args.get("join-id");
             addConnection(this.peer.connect(joinId));
         }
+    }
+
+    addShapeToQueue(shape: Shape) {
+        this.shapeQueue.unshift(shape.toMessage().payload);
     }
 
     sendToAll(label: MessageLabel, payload: any) {
