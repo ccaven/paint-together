@@ -3,12 +3,13 @@
   /** TODO
    * [DONE] Mouse smoothing / precision
    * [DONE] Color palette
-   * Eraser
+   * [DONE] Eraser
    * [DONE] Brush sizes
    * [DONE] Zooming speed exponential, not linear
-   * Zoom towards mouse
-   * Limit network activity
-   * $8 membership
+   * [DONE] Zoom towards mouse
+   * [DONE] Limit network activity
+   * [    ] Color picked via <input type="color"
+   * [    ] $8 membership
   */
 
   import Peer from 'peerjs';
