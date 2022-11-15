@@ -9,17 +9,19 @@
    * [DONE] Zoom towards mouse
    * [DONE] Limit network activity
    * [DONE] Draw point if no mouse movement
-   * [    ] Color picked via <input type="color"
+   * [DONE] Color picked via <input type="color"
    * [    ] $8 membership
   */
 
-  import Peer from 'peerjs';
   import { onMount } from 'svelte';
+  
+  import Peer from 'peerjs';
   import ConnectionManager from './net/ConnectionManager';
   import InviteLink from './ui/InviteLink.svelte';
   import Palette from './ui/Palette.svelte';
   import Camera from './whiteboard/Camera';
   import Whiteboard from './whiteboard/Whiteboard';
+  import { CANVAS_SCALE_FACTOR } from './constants';
 
   let drawingCanvasElement: HTMLCanvasElement;
   
@@ -40,7 +42,7 @@
 
 <main>
     
-  <canvas bind:this={drawingCanvasElement} width=2048 height=2048></canvas>
+  <canvas bind:this={drawingCanvasElement} width={2048*CANVAS_SCALE_FACTOR} height={2048*CANVAS_SCALE_FACTOR}></canvas>
 
   <header>
     <div class="centered">

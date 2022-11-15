@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { CANVAS_SCALE_FACTOR } from "../constants";
   import Color from "../whiteboard/Color";
   import Whiteboard from "../whiteboard/Whiteboard";
 
@@ -28,7 +29,7 @@
   }
 
   function setBrushWidth(width: number) {
-    Whiteboard.instance.setBrushWidth(width);
+    Whiteboard.instance.setBrushWidth(width * CANVAS_SCALE_FACTOR);
   }
 
   function mapWidth(width: number) {
