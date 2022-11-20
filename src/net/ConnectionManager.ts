@@ -8,8 +8,8 @@ export default class ConnectionManager {
     static instance: ConnectionManager;
 
     readonly connections = new Map<string, DataConnection>();
-    readonly nicknames = new Map<string, string>();
-    readonly peerIds = new Map<string, string>();
+    readonly peerIdfromConnectionId = new Map<string, string>();
+
     readonly handlers = new Map<MessageLabel, HandlerFunction>();
 
     readonly peer: Peer;
@@ -22,8 +22,6 @@ export default class ConnectionManager {
 
         this.peer = peer;
         this.id = id;
-
-        let nextUser = 1;
         
         const destroyConnection = (conn: DataConnection) => {
             conn.close();
@@ -31,31 +29,38 @@ export default class ConnectionManager {
             if (!this.connections.has(conn.connectionId)) return;
 
             this.connections.delete(conn.connectionId);
-            this.nicknames.delete(conn.connectionId);
-            this.peerIds.delete(conn.connectionId);
+            this.peerIdfromConnectionId.delete(conn.connectionId);
         };
 
         const addConnection = (conn: DataConnection, outgoing: boolean = true) => {
+            // Connection lifecycle
             conn.on("open", () => {
                 // Add to list of open connections
                 this.connections.set(conn.connectionId, conn);
-                this.nicknames.set(conn.connectionId, `User${nextUser++}`);
 
                 // Send ID to the rest of our connections
                 if (outgoing) {
                     this.sendTo(conn.connectionId, 'introduction', this.id);
                 }
-            });
-
-            conn.on("close", () => destroyConnection(conn));
-            conn.on("error", () => destroyConnection(conn));
+            });            
 
             conn.on("data", (msg: Message<any>) => {
                 // Handle data
                 const {label, payload} = msg;
 
-                if (this.handlers.has(label))
+                if (this.handlers.has(label)) {
                     this.handlers.get(label)(conn, payload);
+                }
+            });
+
+            conn.on("close", () => {
+                console.log("closed connection", conn);
+                destroyConnection(conn);
+            });
+
+            conn.on("error", err => {
+                console.error(err);
+                destroyConnection(conn);
             });
         }
 
@@ -63,53 +68,49 @@ export default class ConnectionManager {
 
         this.handlers.set("introduction", (conn, payload) => {
             const id = payload as Snowflake;
-            this.peerIds.set(conn.connectionId, id);
+
+            //this.peerIdfromConnectionId.set(conn.connectionId, id);
+            this.connections.get(conn.connectionId).peerId = id;
 
             // Send back the member list to compare
-            this.sendTo(conn.connectionId, "member-list", this.memberList);
+            this.sendTo(conn.connectionId, "introduction-response", {
+                id: this.id,
+                memberList: this.memberList()
+            });
         });
 
-        this.handlers.set("member-list", (_, payload) => {
+        this.handlers.set("introduction-response", (conn, payload) => {
             // compare members
-            const memberList = this.memberList;
-            for (let memberId of payload) {
-                if (!memberList.includes(memberId)) {
+
+            const { id: thatId, memberList: thatMemberList } = payload;
+
+            // this.peerIdfromConnectionId.set(conn.connectionId, thatId);
+            this.connections.get(conn.connectionId).peerId = thatId;
+            
+            const thisMemberList = this.memberList();
+
+            for (let memberId of thatMemberList) {
+                if (!thisMemberList.includes(memberId)) {
                     // say hello!
                     addConnection(this.peer.connect(memberId, { reliable: true }), true);
                 }
             }
         });
 
-        this.handlers.set("set-name", (conn, payload) => {
-            const nickname = payload as string;
-            this.nicknames.set(conn.connectionId, nickname);
-        });
 
-        this.handlers.set("chat-message", (conn, payload) => {
-            // TODO: Relay this back to the Whiteboard object
-            // For now, console.log
-            const connectionId = conn.connectionId;
-            const nickname = this.nicknames.get(connectionId);
-
-            console.log(nickname, "says", payload);
-        });
-
-        this.handlers.set("draw-shape", (conn, payload: ShapePayload) => {
+        this.handlers.set("draw-shape", (_, payload: ShapePayload) => {
             // TODO: Relay this back to Whiteboard object
             // For now, console.log
-            const connectionId = conn.connectionId;
-            const nickname = this.nicknames.get(connectionId);
-            console.log(nickname, "draws", payload);
-
             Whiteboard.instance.handleIncoming(payload);
         });
 
         this.handlers.set("draw-shape-many", (_, payloads: ShapePayload[]) => {
-            for (let i = 0; i < payloads.length; i ++) {
-                Whiteboard.instance.handleIncoming(payloads[i]);
+            for (const payload of payloads) {
+                Whiteboard.instance.handleIncoming(payload);
             }
         });
 
+        // Repeatedly attempt to empty queue
         setInterval(() => {
             const l = this.shapeQueue.length;
             const n = 20;
@@ -126,6 +127,7 @@ export default class ConnectionManager {
         // Check window args
         const args = new URLSearchParams(location.search);
 
+        // check for join-id arg on link
         if (args.has("join-id")) {
             const joinId = args.get("join-id");
             addConnection(this.peer.connect(joinId));
@@ -146,5 +148,14 @@ export default class ConnectionManager {
         }
     }
 
-    get memberList() { return [...this.peerIds.values()]; }
+    memberList() { 
+
+        function isNotNull (v: string | undefined) {
+            return !(v == undefined);
+        }
+
+        return [...this.connections.values()]
+            .map(conn => conn.peerId)
+            .filter(isNotNull); // remove any null values
+    }
 }
